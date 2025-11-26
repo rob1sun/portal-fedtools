@@ -52,32 +52,40 @@
     "id": "8",
     "name": "Bulk (regler)",
     "desc": "Konfigurerar regler för automatvalidering.",
-    "url": "https://validate-md-gui-table.pages.dev/valideringsregler/",
+    "url": "https://validate-md-gui-table.pages.dev/valideringsregler",
     "iconType": "security"
   },
   {
     "id": "9",
     "name": "Bulk (radera)",
     "desc": "Raderar samtliga poster i vald KV.",
-    "url": "https://validate-md-delete-kv.rob1sun9764.workers.dev/",
+    "url": "https://validate-md-delete-kv.rob1sun9764.workers.dev",
     "iconType": "security"
   },
   {
     "id": "10",
     "name": "MD bulk editor",
     "desc": "Mappar en bulk av entiteter mot poster i en excelfil och editerar enligt konfiguration.",
-    "url": "https://portal-fedtools.pages.dev/md-bulk-edit/",
+    "url": "https://portal-fedtools.pages.dev/md-bulk-edit",
     "iconType": "docs"
   },
   {
     "id": "11",
-    "name": "MD bulk editor",
-    "desc": "Mappar en bulk av entiteter mot poster i en excelfil och editerar enligt konfiguration.",
-    "url": "https://portal-fedtools.pages.dev/md-bulk-edit/",
+    "name": "MD bulk generator",
+    "desc": "Genererar en bulk av entiteter utifrån en mall och poster i en excelfil enligt konfiguration.",
+    "url": "https://portal-fedtools.pages.dev/md-template-to-bulk",
+    "iconType": "docs"
+  },
+  {
+    "id": "12",
+    "name": "MD bulk generator",
+    "desc": "Genererar en bulk av entiteter utifrån en mall och poster i en excelfil enligt konfiguration.",
+    "url": "https://portal-fedtools.pages.dev/md-template-to-bulk",
     "iconType": "docs"
   }
 
 ]
+
 
 
 
