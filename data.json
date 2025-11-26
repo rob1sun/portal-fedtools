@@ -8,16 +8,16 @@
   },
   {
     "id": "2",
-    "name": "Admin för organisationer på Sambiwebben",
-    "desc": "Manuell hantering av medlemmar (inlogg).",
+    "name": "Sambiwebben (admin)",
+    "desc": "Manuell hantering av medlemmar på Sambiwebben (inlogg).",
     "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/admin",
     "iconType": "security"
   },
   {
     "id": "3",
-    "name": "Server Status",
+    "name": "Sambiwebben - preview",
     "desc": "Övervakning av infrastruktur och driftstörningar.",
-    "url": "https://status.foretaget.se",
+    "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/anslutna-organisationer",
     "iconType": "cloud"
   },
   {
@@ -43,6 +43,7 @@
   }
 
 ]
+
 
 
 
