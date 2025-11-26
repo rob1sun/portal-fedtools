@@ -22,20 +22,27 @@
   },
   {
     "id": "4",
+    "name": "Sambiwebben (JSON)",
+    "desc": "Den data som läses in i Wordpress.",
+    "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/anslutna-org.json",
+    "iconType": "media"
+  },
+  {
+    "id": "5",
     "name": "Bulk (validering)",
     "desc": "Manuell validering av metadata med automatisk förkontroll.",
     "url": "https://validate-md-gui-table.pages.dev",
     "iconType": "analytics"
   },
   {
-    "id": "5",
+    "id": "6",
     "name": "Bulk (uppladdning)",
     "desc": "Uppladdning av Zip med metadata för bulkvalidering.",
     "url": "https://validate-md.pages.dev",
     "iconType": "docs"
   },
   {
-    "id": "6",
+    "id": "7",
     "name": "Varumärke",
     "desc": "Loggor, typsnitt och grafiska riktlinjer.",
     "url": "https://brand.foretaget.se",
@@ -43,3 +50,4 @@
   }
 
 ]
+
