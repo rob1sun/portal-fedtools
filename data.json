@@ -9,7 +9,7 @@
   {
     "id": "sob_rapport_json",
     "name": "SOB - rapport (JSON)",
-    "desc": "JSON med data över organisationer via SOB för rapporter i Excel eller annat.",
+    "desc": "_TOKEN KRÄVS FÖR MASKIN_ Org via SOB för rapporter i Excel eller annat.",
     "url": "https://ombud-begr-stats.rob1sun9764.workers.dev/rapport.json",
     "iconType": "media"
   },
@@ -99,6 +99,7 @@
   }
 
 ]
+
 
 
 
