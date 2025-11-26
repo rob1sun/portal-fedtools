@@ -7,7 +7,7 @@
     "iconType": "admin"
   },
   {
-    "id": "2",
+    "id": "1",
     "name": "Säljutveckling",
     "desc": "KPI-rapporter och försäljningsprognoser i realtid.",
     "url": "https://sales.foretaget.se",
@@ -43,3 +43,4 @@
   }
 
 ]
+
