@@ -1,6 +1,6 @@
 [
   {
-    "id": "1",
+    "id": "2",
     "name": "HR Portal",
     "desc": "Hantera personal, semester och utvecklingssamtal.",
     "url": "https://hr.foretaget.se",
@@ -41,4 +41,5 @@
     "url": "https://brand.foretaget.se",
     "iconType": "media"
   }
+
 ]
