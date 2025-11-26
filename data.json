@@ -43,12 +43,27 @@
   },
   {
     "id": "7",
-    "name": "Varumärke",
-    "desc": "Loggor, typsnitt och grafiska riktlinjer.",
-    "url": "https://brand.foretaget.se",
-    "iconType": "media"
+    "name": "Bulk (Bolagsverket)",
+    "desc": "Orkestrator för att köra bulk mot BV utan att överbelasta API eller worker.",
+    "url": "https://validate-md-bv-orchestrate.pages.dev",
+    "iconType": "security"
+  },
+  {
+    "id": "8",
+    "name": "Bulk (regler)",
+    "desc": "Konfigurerar regler för automatvalidering.",
+    "url": "https://validate-md-gui-table.pages.dev/valideringsregler/",
+    "iconType": "security"
+  },
+  {
+    "id": "9",
+    "name": "Bulk (radera)",
+    "desc": "Raderar samtliga poster i vald KV.",
+    "url": "https://validate-md-delete-kv.rob1sun9764.workers.dev/",
+    "iconType": "security"
   }
 
 ]
+
 
 
