@@ -15,8 +15,8 @@
   },
   {
     "id": "3",
-    "name": "Sambiwebben - preview",
-    "desc": "Övervakning av infrastruktur och driftstörningar.",
+    "name": "Sambiwebben (preview)",
+    "desc": "Visning av den totala lista med organisationer som publiceras på Sambiwebben.",
     "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/anslutna-organisationer",
     "iconType": "cloud"
   },
@@ -50,4 +50,5 @@
   }
 
 ]
+
 
