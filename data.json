@@ -8,76 +8,83 @@
   },
   {
     "id": "2",
+    "name": "Entity Size (scope)",
+    "desc": "Visar antal scope per entitet i Sambi MD.",
+    "url": "https://scope-analyzer.rob1sun9764.workers.dev/entity-size",
+    "iconType": "analytics"
+  },
+  {
+    "id": "3",
     "name": "Sambiwebben (admin)",
     "desc": "Manuell hantering av medlemmar på Sambiwebben (inlogg).",
     "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/admin",
     "iconType": "security"
   },
   {
-    "id": "3",
+    "id": "4",
     "name": "Sambiwebben (preview)",
     "desc": "Visning av den totala lista med organisationer som publiceras på Sambiwebben.",
     "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/anslutna-organisationer",
     "iconType": "cloud"
   },
   {
-    "id": "4",
+    "id": "5",
     "name": "Sambiwebben (JSON)",
     "desc": "Den data som läses in i Wordpress.",
     "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/anslutna-org.json",
     "iconType": "media"
   },
   {
-    "id": "5",
+    "id": "6",
     "name": "Bulk (validering)",
     "desc": "Manuell validering av metadata med automatisk förkontroll.",
     "url": "https://validate-md-gui-table.pages.dev",
     "iconType": "analytics"
   },
   {
-    "id": "6",
+    "id": "7",
     "name": "Bulk (uppladdning)",
     "desc": "Uppladdning av Zip med metadata för bulkvalidering.",
     "url": "https://validate-md.pages.dev",
     "iconType": "docs"
   },
   {
-    "id": "7",
+    "id": "8",
     "name": "Bulk (Bolagsverket)",
     "desc": "Orkestrator för att köra bulk mot BV utan att överbelasta API eller worker.",
     "url": "https://validate-md-bv-orchestrate.pages.dev",
     "iconType": "security"
   },
   {
-    "id": "8",
+    "id": "9",
     "name": "Bulk (regler)",
     "desc": "Konfigurerar regler för automatvalidering.",
     "url": "https://validate-md-gui-table.pages.dev/valideringsregler",
     "iconType": "security"
   },
   {
-    "id": "9",
-    "name": "Bulk (radera)",
+    "id": "10",
+    "name": "Bulk (radera KV)",
     "desc": "Raderar samtliga poster i vald KV.",
     "url": "https://validate-md-delete-kv.rob1sun9764.workers.dev",
     "iconType": "security"
   },
   {
-    "id": "10",
+    "id": "11",
     "name": "MD bulk editor",
     "desc": "Mappar en bulk av entiteter mot poster i en excelfil och editerar enligt konfiguration.",
     "url": "https://portal-fedtools.pages.dev/md-bulk-edit",
     "iconType": "docs"
   },
   {
-    "id": "11",
+    "id": "12",
     "name": "MD bulk generator",
     "desc": "Genererar en bulk av entiteter utifrån en mall och poster i en excelfil enligt konfiguration.",
     "url": "https://portal-fedtools.pages.dev/md-template-to-bulk",
     "iconType": "docs"
   },
   {
-    "id": "12",
+    "id": "13",
     "name": "MD 411 bulk generator",
     "desc": "Genererar en bulk av entiteter utifrån en mall och poster i en excelfil enligt detaljerad konfiguration.",
     "url": "https://portal-fedtools.pages.dev/md-detailed-bulk-generator",
@@ -85,6 +92,7 @@
   }
 
 ]
+
 
 
 
