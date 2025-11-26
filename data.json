@@ -61,9 +61,24 @@
     "desc": "Raderar samtliga poster i vald KV.",
     "url": "https://validate-md-delete-kv.rob1sun9764.workers.dev/",
     "iconType": "security"
+  },
+  {
+    "id": "10",
+    "name": "MD bulk editor",
+    "desc": "Mappar en bulk av entiteter mot poster i en excelfil och editerar enligt konfiguration.",
+    "url": "https://portal-fedtools.pages.dev/md-bulk-edit/",
+    "iconType": "docs"
+  },
+  {
+    "id": "11",
+    "name": "MD bulk editor",
+    "desc": "Mappar en bulk av entiteter mot poster i en excelfil och editerar enligt konfiguration.",
+    "url": "https://portal-fedtools.pages.dev/md-bulk-edit/",
+    "iconType": "docs"
   }
 
 ]
+
 
 
 
