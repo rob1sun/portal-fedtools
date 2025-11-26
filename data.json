@@ -78,13 +78,14 @@
   },
   {
     "id": "12",
-    "name": "MD bulk generator",
-    "desc": "Genererar en bulk av entiteter utifrån en mall och poster i en excelfil enligt konfiguration.",
-    "url": "https://portal-fedtools.pages.dev/md-template-to-bulk",
+    "name": "MD 411 bulk generator",
+    "desc": "Genererar en bulk av entiteter utifrån en mall och poster i en excelfil enligt detaljerad konfiguration.",
+    "url": "https://portal-fedtools.pages.dev/md-detailed-bulk-generator",
     "iconType": "docs"
   }
 
 ]
+
 
 
 
