@@ -1,13 +1,13 @@
 [
   {
-    "id": "2",
+    "id": "1",
     "name": "HR Portal",
     "desc": "Hantera personal, semester och utvecklingssamtal.",
     "url": "https://hr.foretaget.se",
     "iconType": "admin"
   },
   {
-    "id": "1",
+    "id": "2",
     "name": "Säljutveckling",
     "desc": "KPI-rapporter och försäljningsprognoser i realtid.",
     "url": "https://sales.foretaget.se",
@@ -43,4 +43,5 @@
   }
 
 ]
+
 
