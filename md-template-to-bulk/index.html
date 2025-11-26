@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <title>SAML Entity Generator (Offline)</title>
+
+  <!-- Lokala versioner av biblioteken (ligger i samma katalog som HTML-filen) -->
+  <script src="jszip.min.js"></script>
+  <script src="xlsx.full.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --bg-softer: #020617;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56,189,248,0.1);
+      --accent-strong: #0ea5e9;
+      --border-soft: #1e293b;
+      --danger: #f97373;
+      --text: #e5e7eb;
+      --text-soft: #9ca3af;
+      --radius-lg: 18px;
+      --radius-xl: 26px;
+      --shadow-soft: 0 22px 45px rgba(15,23,42,0.8);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 32px 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1100px;
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.1), transparent 55%);
+      border-radius: 32px;
+      padding: 24px;
+    }
+
+    .glass-card {
+      background: linear-gradient(145deg, rgba(15,23,42,0.98), rgba(15,23,42,0.9));
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(148,163,184,0.2);
+      box-shadow: var(--shadow-soft);
+      padding: 24px 24px 18px 24px;
+      backdrop-filter: blur(18px);
+    }
+
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .header-text h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      border: 1px solid rgba(56,189,248,0.35);
+    }
+
+    .header-text p {
+      margin: 4px 0 0 0;
+      color: var(--text-soft);
+      font-size: 13px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .badge {
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: rgba(15,23,42,0.8);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .section {
+      background: radial-gradient(circle at top left, rgba(15,23,42,1), rgba(15,23,42,0.96));
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-soft);
+      padding: 18px 18px 16px 18px;
+    }
+
+    .section h2 {
+      margin: 0 0 4px 0;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section h2 span.icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      background: var(--accent-soft);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--accent-strong);
+    }
+
+    .section p {
+      margin: 0 0 12px 0;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .field { margin-bottom: 12px; }
+
+    .field-label {
+      font-size: 12px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      color: var(--text-soft);
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 12px;
+      border-radius: 13px;
+      border: 1px dashed rgba(148,163,184,0.6);
+      background: #020617;
+      color: var(--text-soft);
+      cursor: pointer;
+    }
+
+    input[type="file"]::file-selector-button {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 10px;
+      margin-right: 10px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .radio-group {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.1fr);
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 700px) {
+      .radio-group {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .radio-card {
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      background: #020617;
+      padding: 10px 10px 9px 10px;
+      font-size: 12px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .radio-card input[type="radio"] {
+      margin-top: 2px;
+    }
+
+    .radio-card-title {
+      font-weight: 500;
+      font-size: 12px;
+    }
+
+    .radio-card-desc {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-top: 1px;
+    }
+
+    .radio-card.active {
+      border-color: var(--accent-strong);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.25);
+      background: linear-gradient(135deg, rgba(8,47,73,0.6), #020617);
+    }
+
+    .text-input {
+      width: 100%;
+      padding: 7px 9px;
+      font-size: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: #020617;
+      color: var(--text);
+      outline: none;
+      margin-top: 6px;
+    }
+
+    .text-input:focus {
+      border-color: var(--accent-strong);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.4);
+    }
+
+    .text-input[disabled] {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .footer-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(30,64,175,0.4);
+    }
+
+    .status-pill {
+      font-size: 11px;
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.4);
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56,189,248,0.35);
+    }
+
+    .status-pill.error .status-dot {
+      background: var(--danger);
+      box-shadow: 0 0 0 3px rgba(248,113,113,0.35);
+    }
+
+    .status-text-short {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn-primary {
+      appearance: none;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      background: linear-gradient(135deg, var(--accent-strong), #22c55e);
+      color: #0b1120;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 14px 30px rgba(56,189,248,0.55);
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, opacity 0.08s ease-out;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 35px rgba(56,189,248,0.7);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 22px rgba(56,189,248,0.45);
+    }
+
+    .btn-primary[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn-icon { font-size: 14px; }
+
+    .log-panel {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      background: #020617;
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      padding: 8px 10px;
+      max-height: 220px;
+      overflow: auto;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .log-panel strong { color: var(--accent-strong); }
+    .log-panel .warn { color: #fbbf24; }
+    .log-panel .err { color: #fca5a5; }
+
+    small.hint {
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="glass-card">
+      <div class="header">
+        <div class="header-text">
+          <h1>
+            <span class="tag">SAML Utility</span>
+            SAML Entity Generator (Offline)
+          </h1>
+          <p>Skapa en SAML-entitet per rad i Excel baserat på en mall – med unika <code>entityID</code> och <code>shibmd:Scope</code>.</p>
+        </div>
+        <div class="badge-row">
+          <span class="badge">
+            <span class="badge-dot"></span>
+            Lokal filbearbetning – inget lämnar din dator
+          </span>
+          <span class="badge">
+            🔐 Behåller exakt format (whitespace, attribut, kommentarer)
+          </span>
+        </div>
+      </div>
+
+      <div class="layout">
+        <div class="section">
+          <h2><span class="icon">①</span> Mall &amp; Excel</h2>
+          <p>Ladda upp en SAML-entity som mall (XML) och en Excel-fil med organisationsnummer (och gärna namn).</p>
+
+          <div class="field">
+            <div class="field-label">
+              <span>SAML-mall (XML)</span>
+              <small class="hint">En enda <code>.xml</code> med <code>&lt;EntityDescriptor&gt;</code></small>
+            </div>
+            <input type="file" id="templateInput" accept=".xml" />
+          </div>
+
+          <div class="field">
+            <div class="field-label">
+              <span>Excel med orgnr &amp; namn</span>
+              <small class="hint">.xlsx (t.ex. Orgnamn&amp;orgnr.xlsx)</small>
+            </div>
+            <input type="file" id="excelInput" accept=".xlsx,.xls" />
+          </div>
+
+          <div class="field">
+            <small class="hint">
+              Appen försöker hitta rätt kolumner (t.ex. rubriker med <em>orgnr</em> och <em>namn</em>). Om inga rubriker finns
+              används första kolumn som orgnr och andra som namn. En entitet genereras per rad med orgnr.
+            </small>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2><span class="icon">②</span> Namnsättning</h2>
+          <p>Välj hur <code>OrganizationName</code> och <code>OrganizationDisplayName</code> ska sättas i varje entitet.</p>
+
+          <div class="field">
+            <div class="field-label">
+              <span>OrganizationName</span>
+            </div>
+            <div class="radio-group" id="orgNameModeGroup">
+              <label class="radio-card active">
+                <input type="radio" name="orgNameMode" value="excel" checked />
+                <div>
+                  <div class="radio-card-title">Hämta namn från Excel</div>
+                  <div class="radio-card-desc">
+                    Använd namnet från Excel-raden (samma rad som orgnumret).
+                  </div>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="orgNameMode" value="manual" />
+                <div>
+                  <div class="radio-card-title">Samlat fast värde</div>
+                  <div class="radio-card-desc">
+                    Sätt samma <code>OrganizationName</code> i alla entiteter.
+                  </div>
+                </div>
+              </label>
+            </div>
+            <input
+              type="text"
+              id="orgNameManual"
+              class="text-input"
+              placeholder="Ange gemensamt OrganizationName..."
+              disabled
+            />
+          </div>
+
+          <div class="field">
+            <div class="field-label">
+              <span>OrganizationDisplayName</span>
+            </div>
+            <div class="radio-group" id="orgDisplayNameModeGroup">
+              <label class="radio-card active">
+                <input type="radio" name="orgDisplayNameMode" value="excel" checked />
+                <div>
+                  <div class="radio-card-title">Hämta namn från Excel</div>
+                  <div class="radio-card-desc">
+                    Använd samma namn som för <code>OrganizationName</code> (från Excel).
+                  </div>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="orgDisplayNameMode" value="manual" />
+                <div>
+                  <div class="radio-card-title">Samlat fast värde</div>
+                  <div class="radio-card-desc">
+                    Sätt samma <code>OrganizationDisplayName</code> i alla entiteter.
+                  </div>
+                </div>
+              </label>
+            </div>
+            <input
+              type="text"
+              id="orgDisplayNameManual"
+              class="text-input"
+              placeholder="Ange gemensamt OrganizationDisplayName..."
+              disabled
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="section" style="margin-top:16px;">
+        <h2><span class="icon">③</span> entityID &amp; Scope</h2>
+        <p>
+          Varje entitet får ett unikt <code>entityID</code> med löpnummer. <code>shibmd:Scope</code> sätts till
+          <code>ORGNR.fedscope.se</code>. Mallen kan ha
+          <code>&lt;shibmd:Scope regexp="false"&gt;&lt;/shibmd:Scope&gt;</code>
+          eller
+          <code>&lt;shibmd:Scope regexp="false"&gt;.fedscope.se&lt;/shibmd:Scope&gt;</code>.
+        </p>
+
+        <div class="field">
+          <div class="field-label">
+            <span>entityID-struktur</span>
+          </div>
+          <div class="radio-group" id="entityIdModeGroup">
+            <label class="radio-card active">
+              <input type="radio" name="entityIdMode" value="subdomain" checked />
+              <div>
+                <div class="radio-card-title">Subdomän</div>
+                <div class="radio-card-desc">
+                  <code>https://&lt;tagg&gt;&lt;nr&gt;.exempel.se</code> – t.ex. <code>https://entity-3.exempel.se</code>
+                </div>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="entityIdMode" value="path" />
+              <div>
+                <div class="radio-card-title">Path</div>
+                <div class="radio-card-desc">
+                  <code>https://exempel.se/&lt;tagg&gt;&lt;nr&gt;</code> – t.ex. <code>https://exempel.se/entity-3</code>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">
+            <span>Domän (utan <code>https://</code>)</span>
+            <small class="hint">t.ex. <code>exempel.se</code></small>
+          </div>
+          <input
+            type="text"
+            id="entityDomain"
+            class="text-input"
+            placeholder="exempel.se"
+          />
+        </div>
+
+        <div class="field">
+          <div class="field-label">
+            <span>Tagg</span>
+            <small class="hint">Prefix för löpnumret, t.ex. <code>entity-</code></small>
+          </div>
+          <input
+            type="text"
+            id="entityTag"
+            class="text-input"
+            placeholder="entity-"
+            value="entity-"
+          />
+        </div>
+
+        <div class="field">
+          <div class="field-label">
+            <span>Startnummer</span>
+            <small class="hint">Minsta värde: 1</small>
+          </div>
+          <input
+            type="number"
+            id="entityStartNumber"
+            class="text-input"
+            placeholder="1"
+            value="1"
+            min="1"
+          />
+        </div>
+
+        <div class="field">
+          <small class="hint">
+            Om <code>shibmd:Scope</code> saknas i mallen loggas en varning: <strong>"shibmd:Scope saknas i
+            mallen"</strong>. Entiteterna skapas ändå, men utan uppdaterad Scope.
+          </small>
+        </div>
+      </div>
+
+      <div class="footer-bar">
+        <div class="status-pill" id="statusPill">
+          <span class="status-dot"></span>
+          <span class="status-text-short" id="statusText">Väntar på mall &amp; Excel...</span>
+        </div>
+
+        <button class="btn-primary" id="processBtn" disabled>
+          <span class="btn-icon">⚙️</span>
+          <span>Skapa &amp; ladda ner ZIP</span>
+        </button>
+      </div>
+
+      <div class="field" style="margin-top:10px;">
+        <div class="field-label">
+          <span>Logg</span>
+          <small class="hint">Kort sammanfattning av vad som gjorts</small>
+        </div>
+        <div class="log-panel" id="logPanel">
+          Klart att köra. Ladda upp mall &amp; Excel, välj inställningar och klicka på <strong>Skapa &amp; ladda ner ZIP</strong>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const templateInput = document.getElementById("templateInput");
+      const excelInput = document.getElementById("excelInput");
+      const processBtn = document.getElementById("processBtn");
+      const statusPill = document.getElementById("statusPill");
+      const statusText = document.getElementById("statusText");
+      const logPanel = document.getElementById("logPanel");
+
+      const orgNameModeGroup = document.getElementById("orgNameModeGroup");
+      const orgDisplayNameModeGroup = document.getElementById("orgDisplayNameModeGroup");
+      const orgNameManualInput = document.getElementById("orgNameManual");
+      const orgDisplayNameManualInput = document.getElementById("orgDisplayNameManual");
+
+      const entityIdModeGroup = document.getElementById("entityIdModeGroup");
+      const entityDomainInput = document.getElementById("entityDomain");
+      const entityTagInput = document.getElementById("entityTag");
+      const entityStartNumberInput = document.getElementById("entityStartNumber");
+
+      function log(message, type) {
+        const span = document.createElement("span");
+        if (type === "warn") span.className = "warn";
+        else if (type === "err") span.className = "err";
+        span.textContent = message + "\n";
+        logPanel.appendChild(span);
+        logPanel.scrollTop = logPanel.scrollHeight;
+      }
+
+      function clearLog(initial) {
+        logPanel.textContent = "";
+        if (initial) {
+          logPanel.textContent =
+            "Klart att köra. Ladda upp mall & Excel, välj inställningar och klicka på Skapa & ladda ner ZIP.\n";
+        }
+      }
+
+      function setStatus(text, isError) {
+        statusText.textContent = text;
+        if (isError) statusPill.classList.add("error");
+        else statusPill.classList.remove("error");
+      }
+
+      function updateButtonState() {
+        const tplOk = templateInput.files && templateInput.files.length > 0;
+        const excelOk = excelInput.files && excelInput.files.length > 0;
+        processBtn.disabled = !(tplOk && excelOk);
+        if (tplOk && excelOk) setStatus("Filer valda – redo att generera entiteter.", false);
+        else setStatus("Väntar på mall & Excel...", false);
+      }
+
+      templateInput.addEventListener("change", () => {
+        clearLog(true);
+        log("Mall-fil vald: " + (templateInput.files[0]?.name || ""), null);
+        updateButtonState();
+      });
+
+      excelInput.addEventListener("change", () => {
+        log("Excel-fil vald: " + (excelInput.files[0]?.name || ""), null);
+        updateButtonState();
+      });
+
+      function wireRadioGroup(groupElement, inputElementName, manualInput) {
+        groupElement.addEventListener("change", (e) => {
+          const target = e.target;
+          if (target.name !== inputElementName) return;
+
+          const radios = groupElement.querySelectorAll(".radio-card");
+          radios.forEach((card) => card.classList.remove("active"));
+
+          const card = target.closest(".radio-card");
+          if (card) card.classList.add("active");
+
+          const value = target.value;
+          manualInput.disabled = value !== "manual";
+          if (value === "manual") manualInput.focus();
+        });
+      }
+
+      wireRadioGroup(orgNameModeGroup, "orgNameMode", orgNameManualInput);
+      wireRadioGroup(orgDisplayNameModeGroup, "orgDisplayNameMode", orgDisplayNameManualInput);
+
+      function wireRadioGroupSimple(groupElement, inputElementName) {
+        groupElement.addEventListener("change", (e) => {
+          const target = e.target;
+          if (target.name !== inputElementName) return;
+          const radios = groupElement.querySelectorAll(".radio-card");
+          radios.forEach((card) => card.classList.remove("active"));
+          const card = target.closest(".radio-card");
+          if (card) card.classList.add("active");
+        });
+      }
+
+      wireRadioGroupSimple(entityIdModeGroup, "entityIdMode");
+
+      function escapeXml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&apos;");
+      }
+
+      function normalizeOrgNumber(raw) {
+        if (raw == null) return "";
+        return String(raw).replace(/\D/g, "");
+      }
+
+      function normalizeDomainInput(raw) {
+        let v = String(raw || "").trim();
+        if (!v) return "";
+        v = v.replace(/^https?:\/\//i, "");
+        v = v.replace(/\/+$/, "");
+        return v;
+      }
+
+      // Excel-läsning via XLSX (SheetJS) – bygger entries med orgnr (+ ev. namn)
+      function parseExcel(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            try {
+              const data = new Uint8Array(e.target.result);
+              const workbook = XLSX.read(data, { type: "array" });
+              const sheetName = workbook.SheetNames[0];
+              const sheet = workbook.Sheets[sheetName];
+              const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+              if (!rows || rows.length === 0) {
+                return reject(new Error("Excel-filen verkar vara tom."));
+              }
+
+              const headerRow = rows[0] || [];
+              const dataRows = rows.slice(1).filter((row) =>
+                row.some((cell) => String(cell).trim() !== "")
+              );
+
+              let orgIndex = -1;
+              let nameIndex = -1;
+              const headerLower = headerRow.map((h) => String(h).toLowerCase());
+
+              headerLower.forEach((h, idx) => {
+                if (
+                  orgIndex === -1 &&
+                  (h.includes("orgnr") ||
+                    h.includes("organisationsnummer") ||
+                    h.includes("org nummer") ||
+                    h.includes("org-nr"))
+                ) {
+                  orgIndex = idx;
+                }
+                if (
+                  nameIndex === -1 &&
+                  (h.includes("namn") || h.includes("name") || h.includes("organisation"))
+                ) {
+                  nameIndex = idx;
+                }
+              });
+
+              if (orgIndex === -1) orgIndex = 0;
+              if (nameIndex === -1 && headerRow.length > 1) nameIndex = 1;
+
+              const entries = [];
+              let missingNameCount = 0;
+
+              for (const row of dataRows) {
+                const orgRaw = row[orgIndex];
+                const org = normalizeOrgNumber(orgRaw);
+                if (!org) continue;
+
+                let name = "";
+                if (nameIndex >= 0) {
+                  name = String(row[nameIndex] || "").trim();
+                  if (!name) missingNameCount++;
+                }
+
+                entries.push({ org, name });
+              }
+
+              if (entries.length === 0) {
+                log(
+                  "VARNING: Hittade inga rader med användbara orgnummer i Excel.",
+                  "warn"
+                );
+              } else {
+                log(
+                  "Excel-läsning klar. Antal rader med orgnr: " + entries.length,
+                  null
+                );
+                if (missingNameCount > 0) {
+                  log(
+                    "Observera: " +
+                      missingNameCount +
+                      " rader saknar namn. Om namnsättning från Excel används blir dessa entiteter tomma på namn.",
+                    "warn"
+                  );
+                }
+              }
+
+              resolve({
+                entries,
+                headerRow,
+                orgIndex,
+                nameIndex,
+                totalRows: dataRows.length,
+              });
+            } catch (err) {
+              reject(err);
+            }
+          };
+          reader.onerror = () => reject(new Error("Kunde inte läsa Excel-filen."));
+          reader.readAsArrayBuffer(file);
+        });
+      }
+
+      function replaceTagContent(xmlText, tagName, newValue) {
+        if (newValue === null || newValue === undefined) return xmlText;
+        const regex = new RegExp(
+          "(<\\s*[\\w:]*" + tagName + "\\b[^>]*>)([\\s\\S]*?)(<\\/\\s*[\\w:]*" + tagName + "\\s*>)",
+          "g"
+        );
+        return xmlText.replace(regex, function (match, openTag, inner, closeTag) {
+          return openTag + escapeXml(newValue) + closeTag;
+        });
+      }
+
+      function setEntityId(xmlText, newEntityId) {
+        return xmlText.replace(
+          /(entityID\s*=\s*")([^"]*)(")/,
+          function (match, open, oldVal, close) {
+            return open + escapeXml(newEntityId) + close;
+          }
+        );
+      }
+
+      function setShibScope(xmlText, newScopeValue) {
+        if (!newScopeValue) return xmlText;
+        const regex = /(<\s*[\w:]*Scope\b[^>]*regexp\s*=\s*["']false["'][^>]*>)([\s\S]*?)(<\s*\/\s*[\w:]*Scope\s*>)/;
+        if (!regex.test(xmlText)) {
+          return xmlText;
+        }
+        return xmlText.replace(regex, function (match, openTag, inner, closeTag) {
+          return openTag + escapeXml(newScopeValue) + closeTag;
+        });
+      }
+
+      async function process() {
+        clearLog(false);
+        setStatus("Bearbetar...", false);
+        processBtn.disabled = true;
+
+        const templateFile = templateInput.files[0];
+        const excelFile = excelInput.files[0];
+
+        if (!templateFile || !excelFile) {
+          setStatus("Välj både mall och Excel först.", true);
+          log("Fel: mall och/eller Excel saknas.", "err");
+          processBtn.disabled = false;
+          return;
+        }
+
+        const orgNameMode =
+          document.querySelector('input[name="orgNameMode"]:checked')?.value || "excel";
+        const orgDisplayNameMode =
+          document.querySelector('input[name="orgDisplayNameMode"]:checked')?.value ||
+          "excel";
+        const orgNameManual = orgNameManualInput.value;
+        const orgDisplayNameManual = orgDisplayNameManualInput.value;
+
+        const entityIdMode =
+          document.querySelector('input[name="entityIdMode"]:checked')?.value ||
+          "subdomain";
+        const entityDomainRaw = entityDomainInput.value;
+        const entityDomain = normalizeDomainInput(entityDomainRaw);
+        const entityTag = entityTagInput.value || "";
+        let startNumber = parseInt(entityStartNumberInput.value, 10);
+        if (!Number.isFinite(startNumber) || startNumber < 1) startNumber = 1;
+
+        if (!entityDomain) {
+          log("VARNING: Ingen domän angiven. entityID kan inte genereras korrekt.", "warn");
+        }
+
+        if (orgNameMode === "manual" && orgNameManual.trim() === "") {
+          log(
+            "VARNING: OrganizationName är satt till 'manual' men inget värde angivet. Taggen kommer att tömmas (tomt innehåll).",
+            "warn"
+          );
+        }
+        if (orgDisplayNameMode === "manual" && orgDisplayNameManual.trim() === "") {
+          log(
+            "VARNING: OrganizationDisplayName är satt till 'manual' men inget värde angivet. Taggen kommer att tömmas (tomt innehåll).",
+            "warn"
+          );
+        }
+
+        log("Läser Excel och bygger lista med orgnr...", null);
+
+        let excelData;
+        try {
+          excelData = await parseExcel(excelFile);
+        } catch (err) {
+          setStatus("Fel vid läsning av Excel.", true);
+          log("Fel vid läsning av Excel: " + err.message, "err");
+          processBtn.disabled = false;
+          return;
+        }
+
+        const entries = excelData.entries || [];
+        if (entries.length === 0) {
+          setStatus("Inga giltiga rader i Excel.", true);
+          log("Avbryter: inga rader med orgnummer hittades i Excel.", "err");
+          processBtn.disabled = false;
+          return;
+        }
+
+        log("Läser SAML-mallen...", null);
+
+        let templateXml;
+        try {
+          templateXml = await templateFile.text();
+        } catch (err) {
+          setStatus("Kunde inte läsa mall-filen.", true);
+          log("Fel vid läsning av mall: " + err.message, "err");
+          processBtn.disabled = false;
+          return;
+        }
+
+        // Kontrollera om shibmd:Scope finns
+        const scopeRegex =
+          /<\s*[\w:]*Scope\b[^>]*regexp\s*=\s*["']false["'][^>]*>[\s\S]*?<\s*\/\s*[\w:]*Scope\s*>/;
+        if (!scopeRegex.test(templateXml)) {
+          log('VARNING: shibmd:Scope saknas i mallen.', "warn");
+        } else {
+          log("shibmd:Scope hittades i mallen – kommer att uppdateras per orgnr.", null);
+        }
+
+        const newZip = new JSZip();
+        let generatedCount = 0;
+
+        log("Skapar entiteter från mallen...", null);
+
+        entries.forEach((entry, index) => {
+          const org = entry.org;
+          const excelName = entry.name || "";
+
+          const currentNumber = startNumber + index;
+
+          let entityId = "";
+          if (entityDomain) {
+            if (entityIdMode === "subdomain") {
+              // https://taggN.domän
+              entityId = "https://" + entityTag + currentNumber + "." + entityDomain;
+            } else {
+              // path: https://domän/taggN
+              entityId = "https://" + entityDomain + "/" + entityTag + currentNumber;
+            }
+          }
+
+          let newName = null;
+          let newDisplayName = null;
+
+          if (orgNameMode === "excel") {
+            newName = excelName;
+          } else if (orgNameMode === "manual") {
+            newName = orgNameManual;
+          }
+
+          if (orgDisplayNameMode === "excel") {
+            newDisplayName = excelName;
+          } else if (orgDisplayNameMode === "manual") {
+            newDisplayName = orgDisplayNameManual;
+          }
+
+          let xml = templateXml;
+
+          if (entityId) {
+            xml = setEntityId(xml, entityId);
+          }
+
+          const scopeValue = org ? org + ".fedscope.se" : "";
+          if (scopeValue) {
+            xml = setShibScope(xml, scopeValue);
+          }
+
+          xml = replaceTagContent(xml, "OrganizationName", newName);
+          xml = replaceTagContent(xml, "OrganizationDisplayName", newDisplayName);
+
+          const fileName = "entity-" + currentNumber + ".xml";
+          newZip.file(fileName, xml);
+          generatedCount++;
+        });
+
+        log("");
+        log("Bearbetning klar.", null);
+        log("Antal rader i Excel: " + excelData.totalRows, null);
+        log("Antal entiteter genererade: " + generatedCount, null);
+        log(
+          "Filerna namnges som entity-<löpnummer>.xml (t.ex. entity-" +
+            startNumber +
+            ".xml).",
+          null
+        );
+
+        log("");
+        log("Skapar ZIP för nedladdning...", null);
+
+        let blob;
+        try {
+          blob = await newZip.generateAsync({ type: "blob" });
+        } catch (err) {
+          setStatus("Fel vid skapande av ZIP.", true);
+          log("Fel vid skapande av ZIP: " + err.message, "err");
+          processBtn.disabled = false;
+          return;
+        }
+
+        const downloadName = "saml-entiteter-genererade.zip";
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = downloadName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 15000);
+
+        setStatus("Klar! Ny ZIP nedladdad: " + downloadName, false);
+        processBtn.disabled = false;
+      }
+
+      processBtn.addEventListener("click", () => {
+        process().catch((err) => {
+          setStatus("Oväntat fel.", true);
+          log(
+            "Oväntat fel: " + (err && err.message ? err.message : String(err)),
+            "err"
+          );
+          processBtn.disabled = false;
+        });
+      });
+
+      updateButtonState();
+      clearLog(true);
+    })();
+  </script>
+</body>
+</html>

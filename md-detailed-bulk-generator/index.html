@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <title>SAML Template Mapper (Offline)</title>
+
+  <!-- Lokala versioner i samma katalog -->
+  <script src="jszip.min.js"></script>
+  <script src="xlsx.full.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --bg-softer: #020617;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56,189,248,0.1);
+      --accent-strong: #0ea5e9;
+      --border-soft: #1e293b;
+      --danger: #f97373;
+      --text: #e5e7eb;
+      --text-soft: #9ca3af;
+      --radius-lg: 18px;
+      --radius-xl: 26px;
+      --shadow-soft: 0 22px 45px rgba(15,23,42,0.8);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 32px 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1300px;
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.1), transparent 55%);
+      border-radius: 32px;
+      padding: 24px;
+    }
+
+    .glass-card {
+      background: linear-gradient(145deg, rgba(15,23,42,0.98), rgba(15,23,42,0.9));
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(148,163,184,0.2);
+      box-shadow: var(--shadow-soft);
+      padding: 24px 24px 18px 24px;
+      backdrop-filter: blur(18px);
+    }
+
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .header-text h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      border: 1px solid rgba(56,189,248,0.35);
+    }
+
+    .header-text p {
+      margin: 4px 0 0 0;
+      color: var(--text-soft);
+      font-size: 13px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .badge {
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: rgba(15,23,42,0.8);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    /* Layout – vertikal, så taggsektionen får full bredd */
+    .layout {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .section {
+      background: radial-gradient(circle at top left, rgba(15,23,42,1), rgba(15,23,42,0.96));
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-soft);
+      padding: 18px 18px 16px 18px;
+      width: 100%;
+    }
+
+    .section h2 {
+      margin: 0 0 4px 0;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section h2 span.icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      background: var(--accent-soft);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--accent-strong);
+    }
+
+    .section p {
+      margin: 0 0 12px 0;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .field { margin-bottom: 12px; }
+
+    .field-label {
+      font-size: 12px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      color: var(--text-soft);
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 12px;
+      border-radius: 13px;
+      border: 1px dashed rgba(148,163,184,0.6);
+      background: #020617;
+      color: var(--text-soft);
+      cursor: pointer;
+    }
+
+    input[type="file"]::file-selector-button {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 10px;
+      margin-right: 10px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .text-input {
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: #020617;
+      color: var(--text);
+      outline: none;
+    }
+
+    .text-input:focus {
+      border-color: var(--accent-strong);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.4);
+    }
+
+    .text-input[disabled] {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    /* Radio cards för entityID-läge */
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .radio-card {
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      background: #020617;
+      padding: 8px 10px 7px 10px;
+      font-size: 12px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      cursor: pointer;
+      position: relative;
+      min-width: 0;
+    }
+
+    .radio-card input[type="radio"] {
+      margin-top: 2px;
+      flex: 0 0 auto;
+    }
+
+    .radio-card-title {
+      font-weight: 500;
+      font-size: 12px;
+    }
+
+    .radio-card-desc {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-top: 1px;
+    }
+
+    .radio-card.active {
+      border-color: var(--accent-strong);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.25);
+      background: linear-gradient(135deg, rgba(8,47,73,0.6), #020617);
+    }
+
+    .footer-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(30,64,175,0.4);
+    }
+
+    .status-pill {
+      font-size: 11px;
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.4);
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56,189,248,0.35);
+    }
+
+    .status-pill.error .status-dot {
+      background: var(--danger);
+      box-shadow: 0 0 0 3px rgba(248,113,113,0.35);
+    }
+
+    .status-text-short {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn-primary {
+      appearance: none;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      background: linear-gradient(135deg, var(--accent-strong), #22c55e);
+      color: #0b1120;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 14px 30px rgba(56,189,248,0.55);
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, opacity 0.08s ease-out;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 35px rgba(56,189,248,0.7);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 22px rgba(56,189,248,0.45);
+    }
+
+    .btn-primary[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn-icon { font-size: 14px; }
+
+    .log-panel {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      background: #020617;
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      padding: 8px 10px;
+      max-height: 220px;
+      overflow: auto;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .log-panel strong { color: var(--accent-strong); }
+    .log-panel .warn { color: #fbbf24; }
+    .log-panel .err { color: #fca5a5; }
+
+    small.hint {
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+
+    /* Tagg-lista – bred och radbrytande */
+    .tag-config-list {
+      max-height: 450px;
+      overflow: auto;
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      background: #020617;
+      padding: 6px 8px;
+      font-size: 11px;
+      width: 100%;
+    }
+
+    .config-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(0, 0.7fr) minmax(0, 1.2fr) minmax(0, 1.2fr);
+      gap: 6px;
+      align-items: center;
+      padding: 4px 4px;
+      border-radius: 8px;
+    }
+
+    .config-row:nth-child(2n) {
+      background: rgba(15,23,42,0.6);
+    }
+
+    @media (max-width: 900px) {
+      .config-row {
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+        grid-template-rows: auto auto auto;
+      }
+      .config-row .config-excel,
+      .config-row .config-generic {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .config-label {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      white-space: normal;
+      word-break: break-all;
+      overflow: visible;
+      text-overflow: clip;
+    }
+
+    .config-label .attr {
+      color: #a5b4fc;
+    }
+
+    .config-label .depth-indent {
+      display: inline-block;
+      margin-right: 2px;
+    }
+
+    .config-label .depth-indent::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+    }
+
+    .mode-select {
+      width: 100%;
+      padding: 3px 6px;
+      font-size: 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: #020617;
+      color: var(--text);
+      outline: none;
+    }
+
+    .mode-select:focus {
+      border-color: var(--accent-strong);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.4);
+    }
+
+    .config-excel, .config-generic {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .config-excel label, .config-generic label {
+      white-space: nowrap;
+      color: var(--text-soft);
+      flex: 0 0 auto;
+    }
+
+    .config-excel input, .config-generic input {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .tag-summary {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="glass-card">
+      <div class="header">
+        <div class="header-text">
+          <h1>
+            <span class="tag">SAML Utility</span>
+            SAML Template Mapper (Offline)
+          </h1>
+          <p>
+            Ladda upp en XML-mall, konfigurera hur varje tagg/attribut ska sättas (behåll, läs från Excel, generiskt)
+            och generera en XML per rad i Excel. Output matchar mallen exakt förutom ändrade värden. <code>entityID</code> styrs separat.
+          </p>
+        </div>
+        <div class="badge-row">
+          <span class="badge">
+            <span class="badge-dot"></span>
+            Lokal filbearbetning – inget lämnar din dator
+          </span>
+        </div>
+      </div>
+
+      <div class="layout">
+        <!-- Övre sektion: filer + entityID -->
+        <div class="section">
+          <h2><span class="icon">①</span> Mall, Excel &amp; entityID</h2>
+          <p>
+            Ladda först upp mallen för att läsa ut taggstrukturen, sedan Excel. <code>entityID</code> hanteras separat nedan
+            och visas inte som ett vanligt attribut i tabellen.
+          </p>
+
+          <div class="field">
+            <div class="field-label">
+              <span>SAML-mall (XML)</span>
+              <small class="hint">En enda XML-fil (<code>EntityDescriptor</code> etc.)</small>
+            </div>
+            <input type="file" id="templateInput" accept=".xml" />
+          </div>
+
+          <div class="field">
+            <div class="field-label">
+              <span>Excel med värden</span>
+              <small class="hint">.xlsx med rubrikrad</small>
+            </div>
+            <input type="file" id="excelInput" accept=".xlsx,.xls" />
+          </div>
+
+          <div class="field">
+            <div class="field-label">
+              <span>entityID-struktur</span>
+              <small class="hint">Hanternas separat – ersätter <code>entityID</code> i mallen</small>
+            </div>
+            <div class="radio-group" id="entityIdModeGroup">
+              <label class="radio-card active">
+                <input type="radio" name="entityIdMode" value="keep" checked />
+                <div>
+                  <div class="radio-card-title">Behåll från mallen</div>
+                  <div class="radio-card-desc">
+                    Lämna <code>entityID</code> exakt som i mallen (ingen löpnumrering).
+                  </div>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="entityIdMode" value="subdomain" />
+                <div>
+                  <div class="radio-card-title">Generera som subdomän</div>
+                  <div class="radio-card-desc">
+                    <code>https://&lt;tagg&gt;&lt;nr&gt;.domän</code> &nbsp;ex: <code>https://entity-3.exempel.se</code>
+                  </div>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="entityIdMode" value="path" />
+                <div>
+                  <div class="radio-card-title">Generera som path</div>
+                  <div class="radio-card-desc">
+                    <code>https://domän/&lt;tagg&gt;&lt;nr&gt;</code> &nbsp;ex: <code>https://exempel.se/entity-3</code>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label">
+              <span>Domän (utan <code>https://</code>)</span>
+              <small class="hint">t.ex. <code>exempel.se</code></small>
+            </div>
+            <input
+              type="text"
+              id="entityDomain"
+              class="text-input"
+              placeholder="exempel.se"
+              disabled
+            />
+          </div>
+
+          <div class="field">
+            <div class="field-label">
+              <span>Tagg för löpnumrering</span>
+              <small class="hint">Prefix, t.ex. <code>entity-</code></small>
+            </div>
+            <input
+              type="text"
+              id="entityTag"
+              class="text-input"
+              placeholder="entity-"
+              value="entity-"
+              disabled
+            />
+          </div>
+
+          <div class="field">
+            <div class="field-label">
+              <span>Startnummer</span>
+              <small class="hint">Minsta värde: 1</small>
+            </div>
+            <input
+              type="number"
+              id="entityStartNumber"
+              class="text-input"
+              placeholder="1"
+              value="1"
+              min="1"
+              disabled
+            />
+          </div>
+
+          <div class="field">
+            <div class="field-label">
+              <span>Logg</span>
+              <small class="hint">Vad som händer vid parsing/generering</small>
+            </div>
+            <div class="log-panel" id="logPanel">
+              Klart att köra. Ladda upp mallen, ställ in entityID, konfigurera taggarna, ladda upp Excel och klicka på <strong>Generera ZIP</strong>.
+            </div>
+          </div>
+        </div>
+
+        <!-- Nedre sektion: taggar & attribut över hela bredden -->
+        <div class="section">
+          <h2><span class="icon">②</span> Taggar &amp; attribut (exkl. entityID)</h2>
+          <p>
+            Efter att mallen laddats upp listas alla element och attribut i samma ordning som i XML-filen.
+            <code>entityID</code> visas inte här utan styrs i sektionen ovan.
+          </p>
+
+          <div class="field">
+            <div class="field-label">
+              <span>Konfiguration per tagg/attribut</span>
+              <small class="hint">Behåll, Läs från fil, Ange generiskt</small>
+            </div>
+            <div class="tag-config-list" id="tagConfigList">
+              Inga taggar att visa än – ladda upp en XML-mall först.
+            </div>
+            <div class="tag-summary" id="tagSummary"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bar">
+        <div class="status-pill" id="statusPill">
+          <span class="status-dot"></span>
+          <span class="status-text-short" id="statusText">Väntar på mall &amp; Excel...</span>
+        </div>
+
+        <button class="btn-primary" id="processBtn" disabled>
+          <span class="btn-icon">⚙️</span>
+          <span>Generera ZIP</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const templateInput = document.getElementById("templateInput");
+      const excelInput = document.getElementById("excelInput");
+      const processBtn = document.getElementById("processBtn");
+      const statusPill = document.getElementById("statusPill");
+      const statusText = document.getElementById("statusText");
+      const logPanel = document.getElementById("logPanel");
+      const tagConfigList = document.getElementById("tagConfigList");
+      const tagSummary = document.getElementById("tagSummary");
+
+      const entityIdModeGroup = document.getElementById("entityIdModeGroup");
+      const entityDomainInput = document.getElementById("entityDomain");
+      const entityTagInput = document.getElementById("entityTag");
+      const entityStartNumberInput = document.getElementById("entityStartNumber");
+
+      let templateXmlText = "";
+      let templateDoc = null;
+      let tagConfig = [];      // {id, type, tagName, attrName?, depth, mode, excelColumn, genericValue}
+      let excelHeaders = [];   // kolumnrubriker från Excel
+
+      function log(message, type) {
+        const span = document.createElement("span");
+        if (type === "warn") span.className = "warn";
+        else if (type === "err") span.className = "err";
+        span.textContent = message + "\n";
+        logPanel.appendChild(span);
+        logPanel.scrollTop = logPanel.scrollHeight;
+      }
+
+      function clearLog(initial) {
+        logPanel.textContent = "";
+        if (initial) {
+          logPanel.textContent =
+            "Klart att köra. Ladda upp mallen, ställ in entityID, konfigurera taggarna, ladda upp Excel och klicka på Generera ZIP.\n";
+        }
+      }
+
+      function setStatus(text, isError) {
+        statusText.textContent = text;
+        if (isError) statusPill.classList.add("error");
+        else statusPill.classList.remove("error");
+      }
+
+      function updateButtonState() {
+        const tplOk = !!templateDoc;
+        const excelOk = excelInput.files && excelInput.files.length > 0;
+        const hasConfig = tagConfig && tagConfig.length > 0;
+        processBtn.disabled = !(tplOk && excelOk && hasConfig);
+        if (tplOk && excelOk) setStatus("Mall och Excel valda – redo att generera.", false);
+        else if (tplOk) setStatus("Mall laddad – välj Excel-fil.", false);
+        else setStatus("Väntar på mall & Excel...", false);
+      }
+
+      function parseTemplate(xmlText) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(xmlText, "application/xml");
+        const parsererror = doc.getElementsByTagName("parsererror")[0];
+        if (parsererror) {
+          throw new Error("XML-parsning misslyckades (parsererror).");
+        }
+        return doc;
+      }
+
+      function buildTagConfig(doc) {
+        const config = [];
+        let counter = 0;
+
+        function walk(node, depth) {
+          if (node.nodeType === 1) {
+            const tagName = node.tagName;
+            const idBase = ++counter;
+
+            config.push({
+              id: "el-" + idBase,
+              type: "element",
+              tagName,
+              depth,
+              mode: "keep",
+              excelColumn: "<" + tagName + ">",
+              genericValue: ""
+            });
+
+            if (node.attributes && node.attributes.length > 0) {
+              for (let i = 0; i < node.attributes.length; i++) {
+                const attr = node.attributes[i];
+                const attrName = attr.name;
+                if (attrName === "entityID") continue; // entityID hanteras separat
+
+                config.push({
+                  id: "attr-" + idBase + "-" + i,
+                  type: "attribute",
+                  tagName,
+                  attrName,
+                  depth: depth + 0.25,
+                  mode: "keep",
+                  excelColumn: "<" + tagName + ">@" + attrName,
+                  genericValue: ""
+                });
+              }
+            }
+
+            for (let child = node.firstElementChild; child; child = child.nextElementSibling) {
+              walk(child, depth + 1);
+            }
+          }
+        }
+
+        const root = doc.documentElement;
+        if (root) {
+          walk(root, 0);
+        }
+
+        return config;
+      }
+
+      function renderTagConfigList() {
+        tagConfigList.innerHTML = "";
+        if (!tagConfig || tagConfig.length === 0) {
+          tagConfigList.textContent = "Inga taggar att visa – kunde inte läsa någon struktur från mallen.";
+          tagSummary.textContent = "";
+          return;
+        }
+
+        let elementCount = 0;
+        let attrCount = 0;
+
+        tagConfig.forEach((item) => {
+          if (item.type === "element") elementCount++;
+          else if (item.type === "attribute") attrCount++;
+
+          const row = document.createElement("div");
+          row.className = "config-row";
+          row.dataset.id = item.id;
+
+          const labelCell = document.createElement("div");
+          labelCell.className = "config-label";
+
+          const indent = document.createElement("span");
+          indent.className = "depth-indent";
+          indent.style.marginLeft = (item.depth * 12) + "px";
+          labelCell.appendChild(indent);
+
+          if (item.type === "element") {
+            labelCell.appendChild(document.createTextNode("<" + item.tagName + ">"));
+          } else {
+            const elSpan = document.createElement("span");
+            elSpan.textContent = "<" + item.tagName + ">";
+            elSpan.style.opacity = 0.6;
+            labelCell.appendChild(elSpan);
+            const space = document.createTextNode(" ");
+            labelCell.appendChild(space);
+            const attrSpan = document.createElement("span");
+            attrSpan.className = "attr";
+            attrSpan.textContent = "@" + item.attrName;
+            labelCell.appendChild(attrSpan);
+          }
+
+          const modeCell = document.createElement("div");
+          const modeSelect = document.createElement("select");
+          modeSelect.className = "mode-select";
+          modeSelect.innerHTML = `
+            <option value="keep">Behåll</option>
+            <option value="fromFile">Läs från fil</option>
+            <option value="generic">Ange generiskt</option>
+          `;
+          modeSelect.value = item.mode || "keep";
+          modeSelect.addEventListener("change", (e) => {
+            item.mode = e.target.value;
+            updateRowInputsVisibility(row, item);
+          });
+          modeCell.appendChild(modeSelect);
+
+          const excelCell = document.createElement("div");
+          excelCell.className = "config-excel";
+          const excelLabel = document.createElement("label");
+          excelLabel.textContent = "Kolumn:";
+          excelCell.appendChild(excelLabel);
+
+          if (excelHeaders && excelHeaders.length > 0) {
+            const excelSelect = document.createElement("select");
+            excelSelect.className = "mode-select";
+            const emptyOpt = document.createElement("option");
+            emptyOpt.value = "";
+            emptyOpt.textContent = "(välj)";
+            excelSelect.appendChild(emptyOpt);
+
+            // Om configen innehåller ett tidigare valt värde som inte längre finns i headers,
+            // lägg in det som egen option så det syns.
+            let hasCurrent = item.excelColumn && excelHeaders.includes(item.excelColumn);
+
+            excelHeaders.forEach((h) => {
+              const opt = document.createElement("option");
+              opt.value = h;
+              opt.textContent = h;
+              excelSelect.appendChild(opt);
+            });
+
+            if (!hasCurrent && item.excelColumn && item.excelColumn.trim() !== "") {
+              const opt = document.createElement("option");
+              opt.value = item.excelColumn;
+              opt.textContent = item.excelColumn + " (ej i Excel)";
+              excelSelect.appendChild(opt);
+            }
+
+            if (item.excelColumn) {
+              excelSelect.value = item.excelColumn;
+            }
+
+            excelSelect.addEventListener("change", (e) => {
+              item.excelColumn = e.target.value;
+            });
+
+            excelCell.appendChild(excelSelect);
+          } else {
+            const info = document.createElement("span");
+            info.style.fontSize = "11px";
+            info.style.color = "var(--text-soft)";
+            info.textContent = "Ladda Excel-fil för att välja kolumn.";
+            excelCell.appendChild(info);
+          }
+
+          const genericCell = document.createElement("div");
+          genericCell.className = "config-generic config-excel";
+          genericCell.innerHTML = `<label>Värde:</label>`;
+          const genericInput = document.createElement("input");
+          genericInput.type = "text";
+          genericInput.className = "text-input";
+          genericInput.value = item.genericValue || "";
+          genericInput.addEventListener("input", (e) => {
+            item.genericValue = e.target.value;
+          });
+          genericCell.appendChild(genericInput);
+
+          row.appendChild(labelCell);
+          row.appendChild(modeCell);
+          row.appendChild(excelCell);
+          row.appendChild(genericCell);
+
+          tagConfigList.appendChild(row);
+          updateRowInputsVisibility(row, item);
+        });
+
+        tagSummary.textContent =
+          "Element: " + elementCount + " st, Attribut (exkl. entityID): " + attrCount + " st. " +
+          "Konfigurera de du vill ändra – resten lämnas som i mallen.";
+      }
+
+      function updateRowInputsVisibility(row, item) {
+        const excelCell = row.querySelector(".config-excel");
+        const genericCell = row.querySelector(".config-generic");
+        if (!excelCell || !genericCell) return;
+
+        if (item.mode === "fromFile") {
+          excelCell.style.display = "flex";
+          genericCell.style.display = "none";
+        } else if (item.mode === "generic") {
+          excelCell.style.display = "none";
+          genericCell.style.display = "flex";
+        } else {
+          excelCell.style.display = "none";
+          genericCell.style.display = "none";
+        }
+      }
+
+      function escapeXml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&apos;");
+      }
+
+      function normalizeDomainInput(raw) {
+        let v = String(raw || "").trim();
+        if (!v) return "";
+        v = v.replace(/^https?:\/\//i, "");
+        v = v.replace(/\/+$/, "");
+        return v;
+      }
+
+      function replaceElementContent(xmlText, tagName, newValue) {
+        if (newValue === null || newValue === undefined) return xmlText;
+        const escaped = escapeXml(newValue);
+        const regex = new RegExp(
+          "(<\\s*[\\w:]*" + tagName + "\\b[^>]*>)([\\s\\S]*?)(<\\/\\s*[\\w:]*" + tagName + "\\s*>)",
+          "g"
+        );
+        return xmlText.replace(regex, (match, openTag, inner, closeTag) => {
+          const m = inner.match(/^(\s*)([\s\S]*?)(\s*)$/);
+          const leading = m ? m[1] : "";
+          const trailing = m ? m[3] : "";
+          return openTag + leading + escaped + trailing + closeTag;
+        });
+      }
+
+      function replaceAttributeValue(xmlText, tagName, attrName, newValue) {
+        if (!attrName || newValue === null || newValue === undefined) return xmlText;
+        const escaped = escapeXml(newValue);
+        const regex = new RegExp(
+          '(<\\s*[\\w:]*' +
+            tagName +
+            '\\b[^>]*\\s' +
+            attrName +
+            '\\s*=\\s*")([^"]*)(")',
+          "g"
+        );
+        return xmlText.replace(regex, (match, before, oldVal, after) => {
+          return before + escaped + after;
+        });
+      }
+
+      function updateEntityIdInputsState() {
+        const selected = document.querySelector('input[name="entityIdMode"]:checked');
+        const mode = selected ? selected.value : "keep";
+        const disabled = mode === "keep";
+        entityDomainInput.disabled = disabled;
+        entityTagInput.disabled = disabled;
+        entityStartNumberInput.disabled = disabled;
+      }
+
+      entityIdModeGroup.addEventListener("change", (e) => {
+        const target = e.target;
+        if (target.name !== "entityIdMode") return;
+        const cards = entityIdModeGroup.querySelectorAll(".radio-card");
+        cards.forEach((c) => c.classList.remove("active"));
+        const card = target.closest(".radio-card");
+        if (card) card.classList.add("active");
+        updateEntityIdInputsState();
+      });
+
+      templateInput.addEventListener("change", async () => {
+        clearLog(false);
+        tagConfig = [];
+        tagConfigList.textContent = "Analyserar XML-mallen...";
+        tagSummary.textContent = "";
+        templateDoc = null;
+        templateXmlText = "";
+
+        const file = templateInput.files[0];
+        if (!file) {
+          tagConfigList.textContent = "Ingen fil vald.";
+          updateButtonState();
+          return;
+        }
+
+        log("Mall-fil vald: " + file.name, null);
+
+        try {
+          const text = await file.text();
+          templateXmlText = text;
+          templateDoc = parseTemplate(text);
+          log("XML-mall parsad utan fel.", null);
+
+          tagConfig = buildTagConfig(templateDoc);
+          if (!tagConfig || tagConfig.length === 0) {
+            tagConfigList.textContent = "Inga element hittades i mallen.";
+            tagSummary.textContent = "";
+          } else {
+            renderTagConfigList();
+          }
+        } catch (err) {
+          setStatus("Fel vid uppladdning av mall.", true);
+          log("Fel vid parsning av XML: " + err.message, "err");
+          tagConfigList.textContent = "Kunde inte parsa mallen.";
+          tagSummary.textContent = "";
+          templateDoc = null;
+        }
+
+        updateButtonState();
+      });
+
+      // Läs bara rubrikraden när Excel laddas, för dropdown-listorna
+      function parseExcelHeaders(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            try {
+              const data = new Uint8Array(e.target.result);
+              const workbook = XLSX.read(data, { type: "array" });
+              const sheetName = workbook.SheetNames[0];
+              const sheet = workbook.Sheets[sheetName];
+              const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+              const headerRow = rows[0] || [];
+              const headers = headerRow
+                .map((h) => String(h))
+                .filter((h) => h.trim() !== "");
+              resolve(headers);
+            } catch (err) {
+              reject(err);
+            }
+          };
+          reader.onerror = () => reject(new Error("Kunde inte läsa Excel-filen."));
+          reader.readAsArrayBuffer(file);
+        });
+      }
+
+      excelInput.addEventListener("change", async () => {
+        const file = excelInput.files[0];
+        if (file) {
+          log("Excel-fil vald: " + file.name, null);
+          try {
+            excelHeaders = await parseExcelHeaders(file);
+            if (excelHeaders.length > 0) {
+              log("Kolumnrubriker (Excel): " + excelHeaders.join(", "), null);
+            } else {
+              log("VARNING: Excel-filen verkar sakna rubrikrad eller kolumnnamn.", "warn");
+            }
+            // Rendra om tagg-listan så "Läs från fil" får dropdown med rubriker
+            if (templateDoc && tagConfig && tagConfig.length > 0) {
+              renderTagConfigList();
+            }
+          } catch (err) {
+            log("Fel vid läsning av kolumnrubriker: " + err.message, "err");
+          }
+        }
+        updateButtonState();
+      });
+
+      function parseExcelRows(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            try {
+              const data = new Uint8Array(e.target.result);
+              const workbook = XLSX.read(data, { type: "array" });
+              const sheetName = workbook.SheetNames[0];
+              const sheet = workbook.Sheets[sheetName];
+              const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+              if (!rows || rows.length === 0) {
+                return reject(new Error("Excel-filen verkar vara tom."));
+              }
+
+              const headers = Object.keys(rows[0] || {});
+              log("Excel-läsning klar. Antal rader (exkl. rubrik): " + rows.length, null);
+              log("Kolumner: " + headers.join(", "), null);
+
+              resolve({ rows, headers });
+            } catch (err) {
+              reject(err);
+            }
+          };
+          reader.onerror = () => reject(new Error("Kunde inte läsa Excel-filen."));
+          reader.readAsArrayBuffer(file);
+        });
+      }
+
+      function applyConfigToXmlText(xmlText, rowData, missingColumnsSet, rowIndex, entityIdSettings) {
+        let result = xmlText;
+
+        tagConfig.forEach((cfg) => {
+          if (cfg.mode === "keep") return;
+
+          const excelColumn = (cfg.excelColumn || "").trim();
+          const genericValue = cfg.genericValue;
+
+          let newValue = null;
+          if (cfg.mode === "fromFile") {
+            if (!excelColumn) return;
+            if (!(excelColumn in rowData)) {
+              missingColumnsSet.add(excelColumn);
+              return;
+            }
+            const raw = rowData[excelColumn];
+            newValue = raw == null ? "" : String(raw);
+          } else if (cfg.mode === "generic") {
+            newValue = genericValue == null ? "" : String(genericValue);
+          }
+
+          if (newValue === null) return;
+
+          if (cfg.type === "element") {
+            result = replaceElementContent(result, cfg.tagName, newValue);
+          } else if (cfg.type === "attribute") {
+            result = replaceAttributeValue(result, cfg.tagName, cfg.attrName, newValue);
+          }
+        });
+
+        if (entityIdSettings && entityIdSettings.mode !== "keep" && entityIdSettings.domain) {
+          const currentNumber = entityIdSettings.startNumber + rowIndex;
+          let value = "";
+          if (entityIdSettings.mode === "subdomain") {
+            value = "https://" + entityIdSettings.tag + currentNumber + "." + entityIdSettings.domain;
+          } else {
+            value = "https://" + entityIdSettings.domain + "/" + entityIdSettings.tag + currentNumber;
+          }
+          result = replaceAttributeValue(result, "EntityDescriptor", "entityID", value);
+        }
+
+        return result;
+      }
+
+      async function process() {
+        clearLog(false);
+        setStatus("Bearbetar...", false);
+        processBtn.disabled = true;
+
+        if (!templateDoc || !templateXmlText) {
+          setStatus("Ingen mall inläst.", true);
+          log("Fel: ingen mall inläst.", "err");
+          processBtn.disabled = false;
+          return;
+        }
+
+        const excelFile = excelInput.files[0];
+        if (!excelFile) {
+          setStatus("Ingen Excel-fil vald.", true);
+          log("Fel: ingen Excel-fil vald.", "err");
+          processBtn.disabled = false;
+          return;
+        }
+
+        const selectedEntityModeEl = document.querySelector('input[name="entityIdMode"]:checked');
+        const entityMode = selectedEntityModeEl ? selectedEntityModeEl.value : "keep";
+        let domain = normalizeDomainInput(entityDomainInput.value);
+        let tag = entityTagInput.value || "";
+        let startNumber = parseInt(entityStartNumberInput.value, 10);
+        if (!Number.isFinite(startNumber) || startNumber < 1) startNumber = 1;
+
+        if (entityMode !== "keep" && !domain) {
+          log("VARNING: entityID-läge är satt till generering men ingen domän angiven. entityID lämnas som i mallen.", "warn");
+        }
+
+        updateEntityIdInputsState();
+
+        let excelData;
+        try {
+          excelData = await parseExcelRows(excelFile);
+        } catch (err) {
+          setStatus("Fel vid läsning av Excel.", true);
+          log("Fel vid läsning av Excel: " + err.message, "err");
+          processBtn.disabled = false;
+          return;
+        }
+
+        const rows = excelData.rows;
+        const headers = excelData.headers || [];
+
+        if (!rows || rows.length === 0) {
+          setStatus("Inga data i Excel.", true);
+          log("Inga rader i Excel (förutom ev. rubrik).", "err");
+          processBtn.disabled = false;
+          return;
+        }
+
+        const missingColumnsGlobal = new Set();
+        tagConfig.forEach((cfg) => {
+          if (cfg.mode === "fromFile") {
+            const col = (cfg.excelColumn || "").trim();
+            if (!col) {
+              log(
+                "VARNING: En tagg/attribut är satt till 'Läs från fil' men ingen kolumn angiven.",
+                "warn"
+              );
+            } else if (!headers.includes(col)) {
+              missingColumnsGlobal.add(col);
+            }
+          }
+        });
+
+        if (missingColumnsGlobal.size > 0) {
+          log(
+            "VARNING: Följande kolumner saknas i Excel (värden för dessa taggar lämnas som i mallen):",
+            "warn"
+          );
+          missingColumnsGlobal.forEach((c) => log(" - " + c, "warn"));
+        }
+
+        const zip = new JSZip();
+        let generatedCount = 0;
+
+        log("");
+        log("Genererar XML-filer från mallen (regex-baserad, bevarar format)...", null);
+
+        const entityIdSettings = {
+          mode: entityMode,
+          domain,
+          tag,
+          startNumber
+        };
+
+        rows.forEach((rowData, idx) => {
+          const missingColumnsPerRow = new Set();
+          const xmlString = applyConfigToXmlText(
+            templateXmlText,
+            rowData,
+            missingColumnsPerRow,
+            idx,
+            entityIdSettings
+          );
+          const fileName = "entity-" + (idx + 1) + ".xml";
+          zip.file(fileName, xmlString);
+          generatedCount++;
+        });
+
+        log("");
+        log("Bearbetning klar. Antal genererade entiteter: " + generatedCount, null);
+
+        let blob;
+        try {
+          blob = await zip.generateAsync({ type: "blob" });
+        } catch (err) {
+          setStatus("Fel vid skapande av ZIP.", true);
+          log("Fel vid skapande av ZIP: " + err.message, "err");
+          processBtn.disabled = false;
+          return;
+        }
+
+        const downloadName = "saml-template-mapped.zip";
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = downloadName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 15000);
+
+        setStatus("Klar! Ny ZIP nedladdad: " + downloadName, false);
+        processBtn.disabled = false;
+      }
+
+      processBtn.addEventListener("click", () => {
+        process().catch((err) => {
+          setStatus("Oväntat fel.", true);
+          log("Oväntat fel: " + (err && err.message ? err.message : String(err)), "err");
+          processBtn.disabled = false;
+        });
+      });
+
+      clearLog(true);
+      updateButtonState();
+      updateEntityIdInputsState();
+    })();
+  </script>
+</body>
+</html>
