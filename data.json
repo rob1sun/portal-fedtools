@@ -37,7 +37,7 @@
   {
     "id": "6",
     "name": "Bulk (validering)",
-    "desc": "Manuell validering av metadata med automatisk förkontroll.",
+    "desc": "Manuell validering av metadata med automatisk förkontroll (LÅNG laddtid).",
     "url": "https://validate-md-gui-table.pages.dev",
     "iconType": "analytics"
   },
@@ -92,6 +92,7 @@
   }
 
 ]
+
 
 
 
