@@ -1,97 +1,97 @@
 [
   {
-    "id": "1",
+    "id": "sob_org",
     "name": "SOB - organisationer",
     "desc": "Statistik och tabell med organisationer anslutna via SOB.",
     "url": "https://ombud-begr-stats.rob1sun9764.workers.dev",
     "iconType": "analytics"
   },
   {
-    "id": "2",
+    "id": "sob_rapport_json",
     "name": "SOB - rapport (JSON)",
     "desc": "JSON med data över organisationer via SOB för rapporter i Excel eller annat.",
     "url": "https://ombud-begr-stats.rob1sun9764.workers.dev/rapport.json",
     "iconType": "media"
   },
   {
-    "id": "3",
+    "id": "entity_size",
     "name": "Entity Size (scope)",
     "desc": "Visar antal scope per entitet i Sambi MD.",
     "url": "https://scope-analyzer.rob1sun9764.workers.dev/entity-size",
     "iconType": "analytics"
   },
   {
-    "id": "4",
+    "id": "sambiwebben_admin",
     "name": "Sambiwebben (admin)",
     "desc": "Manuell hantering av medlemmar på Sambiwebben (inlogg).",
     "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/admin",
     "iconType": "security"
   },
   {
-    "id": "5",
+    "id": "sambiwebben_preview",
     "name": "Sambiwebben (preview)",
     "desc": "Visning av den totala lista med organisationer som publiceras på Sambiwebben.",
     "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/anslutna-organisationer",
     "iconType": "cloud"
   },
   {
-    "id": "6",
+    "id": "sambiwebben_json",
     "name": "Sambiwebben (JSON)",
     "desc": "Den data som läses in i Wordpress.",
     "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/anslutna-org.json",
     "iconType": "media"
   },
   {
-    "id": "7",
+    "id": "bulk_validering",
     "name": "Bulk (validering)",
     "desc": "_LÅNG LADDTID_ Manuell validering av metadata med automatisk förkontroll.",
     "url": "https://validate-md-gui-table.pages.dev",
     "iconType": "analytics"
   },
   {
-    "id": "8",
+    "id": "bulk_uppladdning",
     "name": "Bulk (uppladdning)",
     "desc": "Uppladdning av Zip med metadata för bulkvalidering.",
     "url": "https://validate-md.pages.dev",
     "iconType": "docs"
   },
   {
-    "id": "9",
+    "id": "bulk_bolagsverket",
     "name": "Bulk (Bolagsverket)",
     "desc": "Orkestrator för att köra bulk mot BV utan att överbelasta API eller worker.",
     "url": "https://validate-md-bv-orchestrate.pages.dev",
     "iconType": "security"
   },
   {
-    "id": "10",
+    "id": "bulk_regler",
     "name": "Bulk (regler)",
     "desc": "Konfigurerar regler för automatvalidering.",
     "url": "https://validate-md-gui-table.pages.dev/valideringsregler",
     "iconType": "security"
   },
   {
-    "id": "11",
+    "id": "bulk_radera_kv",
     "name": "Bulk (radera KV)",
     "desc": "Raderar samtliga poster i vald KV.",
     "url": "https://validate-md-delete-kv.rob1sun9764.workers.dev",
     "iconType": "security"
   },
   {
-    "id": "12",
+    "id": "md_bulk_editor",
     "name": "MD bulk editor",
     "desc": "Mappar en bulk av entiteter mot poster i en excelfil och editerar enligt konfiguration.",
     "url": "https://portal-fedtools.pages.dev/md-bulk-edit",
     "iconType": "docs"
   },
   {
-    "id": "13",
+    "id": "md_bulk_generator",
     "name": "MD bulk generator",
     "desc": "Genererar en bulk av entiteter utifrån en mall och poster i en excelfil enligt konfiguration.",
     "url": "https://portal-fedtools.pages.dev/md-template-to-bulk",
     "iconType": "docs"
   },
   {
-    "id": "14",
+    "id": "md_411_bulk_generator",
     "name": "MD 411 bulk generator",
     "desc": "Genererar en bulk av entiteter utifrån en mall och poster i en excelfil enligt detaljerad konfiguration.",
     "url": "https://portal-fedtools.pages.dev/md-detailed-bulk-generator",
@@ -99,6 +99,7 @@
   }
 
 ]
+
 
 
 
