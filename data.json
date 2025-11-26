@@ -2,16 +2,16 @@
   {
     "id": "1",
     "name": "SOB - organisationer",
-    "desc": "Statistik och tabell med samtliga organisationer som anslutit via SOB.",
+    "desc": "Statistik och tabell med organisationer anslutna via SOB.",
     "url": "https://ombud-begr-stats.rob1sun9764.workers.dev",
     "iconType": "analytics"
   },
   {
     "id": "2",
-    "name": "Säljutveckling",
-    "desc": "KPI-rapporter och försäljningsprognoser i realtid.",
-    "url": "https://sales.foretaget.se",
-    "iconType": "analytics"
+    "name": "Admin för organisationer på Sambiwebben",
+    "desc": "Manuell hantering av medlemmar (inlogg).",
+    "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/admin",
+    "iconType": "security"
   },
   {
     "id": "3",
@@ -43,6 +43,7 @@
   }
 
 ]
+
 
 
 
