@@ -15,17 +15,17 @@
   },
   {
     "id": "3",
-    "name": "Sambiwebben - preview",
-    "desc": "Övervakning av infrastruktur och driftstörningar.",
+    "name": "Sambiwebben (preview)",
+    "desc": "Visning av den totala lista med organisationer som publiceras på Sambiwebben.",
     "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/anslutna-organisationer",
     "iconType": "cloud"
   },
   {
     "id": "4",
-    "name": "Dokumentarkiv",
-    "desc": "Alla avtal, policys och mallar samlade.",
-    "url": "https://docs.foretaget.se",
-    "iconType": "docs"
+    "name": "Sambiwebben (JSON)",
+    "desc": "Den data som läses in i Wordpress.",
+    "url": "https://anslutna-organisationer.rob1sun9764.workers.dev/anslutna-org.json",
+    "iconType": "media"
   },
   {
     "id": "5",
@@ -43,6 +43,7 @@
   }
 
 ]
+
 
 
 
