@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fed-tools</title>
+    <style>
+        /* --- CSS VARIABLES & THEME SETUP --- */
+        :root {
+            /* Light Theme (Default) */
+            --bg-body: #f4f6f8;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            --border-color: #e2e8f0;
+            --btn-bg: #e2e8f0;
+            --btn-text: #1e293b;
+            --accent-color: #3b82f6;
+        }
+
+        /* Dark Theme Override */
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            --border-color: #334155;
+            --btn-bg: #334155;
+            --btn-text: #f1f5f9;
+        }
+
+        /* --- GLOBAL STYLES --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.3s ease, color 0.3s ease; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            max-width: 1200px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.025em; }
+        p.subtitle { color: var(--text-muted); margin-top: 0.25rem; }
+
+        /* --- THEME TOGGLE BUTTON --- */
+        .theme-toggle {
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .theme-toggle:hover { opacity: 0.9; }
+
+        /* --- GRID LAYOUT --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* --- CARD DESIGN --- */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: var(--shadow-card);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Symbol Container */
+        .icon-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            background-color: rgba(0,0,0,0.05); /* Fallback */
+        }
+        
+        [data-theme="dark"] .icon-box { background-color: rgba(255,255,255,0.05); }
+
+        .icon-box svg { width: 28px; height: 28px; fill: currentColor; }
+
+        /* Text Content */
+        .card-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
+        .card-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; }
+
+        /* --- LOADING STATE --- */
+        .loading { text-align: center; color: var(--text-muted); width: 100%; grid-column: 1 / -1; margin-top: 2rem; }
+
+        /* --- RESPONSIVE ADJUSTMENTS --- */
+        @media (max-width: 600px) {
+            body { padding: 1.5rem; }
+            header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .theme-toggle { align-self: flex-end; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>Verktygslåda</h1>
+            <p class="subtitle">Samlingsplats för tillfälliga verktyg</p>
+        </div>
+        <button id="themeBtn" class="theme-toggle" aria-label="Byt tema">
+            <span>Byt tema</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
+    </header>
+
+    <main id="appGrid" class="grid-container">
+        <div class="loading">Laddar verktyg...</div>
+    </main>
+
+    <script>
+        // --- 1. CONFIG & ICONS ---
+        // Vi definierar ikonerna här så att JSON-filen blir renare.
+        // JSON behöver bara referera till "admin", "analytics" etc.
+        const ICONS = {
+            admin: { 
+                path: '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>',
+                color: '#3b82f6', // Blue
+                bg: 'rgba(59, 130, 246, 0.15)'
+            },
+            analytics: { 
+                path: '<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>',
+                color: '#10b981', // Green
+                bg: 'rgba(16, 185, 129, 0.15)'
+            },
+            cloud: { 
+                path: '<path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>',
+                color: '#8b5cf6', // Purple
+                bg: 'rgba(139, 92, 246, 0.15)'
+            },
+            security: { 
+                path: '<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>',
+                color: '#ef4444', // Red
+                bg: 'rgba(239, 68, 68, 0.15)'
+            },
+            media: { 
+                path: '<path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>',
+                color: '#f59e0b', // Amber/Orange
+                bg: 'rgba(245, 158, 11, 0.15)'
+            },
+            docs: { 
+                path: '<path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>',
+                color: '#06b6d4', // Cyan
+                bg: 'rgba(6, 182, 212, 0.15)'
+            }
+        };
+
+        // --- 2. FALLBACK DATA (Om /data.json saknas) ---
+        const DEMO_DATA = [
+            { id: "1", name: "Användarstöd", desc: "Supportsystem och tickets för interna ärenden.", url: "https://example.com/support", iconType: "admin" },
+            { id: "2", name: "Ekonomi & Lön", desc: "Rapportera tid och se lönespecifikationer.", url: "https://example.com/finance", iconType: "analytics" },
+            { id: "3", name: "Dokument", desc: "Centralt arkiv för avtal och policyer.", url: "https://example.com/docs", iconType: "docs" },
+            { id: "4", name: "Säkerhetscenter", desc: "Incidentrapportering och GDPR-loggar.", url: "https://example.com/security", iconType: "security" },
+            { id: "5", name: "Mediabank", desc: "Logotyper, bilder och presentationer.", url: "https://example.com/media", iconType: "media" },
+            { id: "6", name: "Molntjänster", desc: "Status och driftinformation för servrar.", url: "https://example.com/cloud", iconType: "cloud" }
+        ];
+
+        // --- 3. LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeBtn = document.getElementById('themeBtn');
+            const grid = document.getElementById('appGrid');
+            
+            // A. TEMA HANTERING
+            function applyTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('portalTheme', theme);
+            }
+
+            // Initiera tema (kolla LocalStorage, annars System Prefs)
+            const savedTheme = localStorage.getItem('portalTheme');
+            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else if (systemDark) {
+                applyTheme('dark');
+            }
+
+            // Knapp-klick
+            themeBtn.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme');
+                const next = current === 'dark' ? 'light' : 'dark';
+                applyTheme(next);
+            });
+
+            // B. HÄMTA DATA & RENDERA
+            async function initPortal() {
+                let tools = [];
+                try {
+                    const response = await fetch('/data.json');
+                    if (!response.ok) throw new Error("Kunde inte ladda JSON");
+                    tools = await response.json();
+                } catch (error) {
+                    console.warn("Kunde inte hämta /data.json, använder demo-data istället.", error);
+                    tools = DEMO_DATA;
+                }
+                renderTools(tools);
+            }
+
+            function renderTools(tools) {
+                grid.innerHTML = ''; // Rensa "Loading..."
+                
+                tools.forEach(tool => {
+                    const iconConfig = ICONS[tool.iconType] || ICONS['admin']; // Fallback icon
+                    
+                    const card = document.createElement('a');
+                    card.className = 'card';
+                    card.href = tool.url;
+                    card.target = '_blank';
+                    card.rel = 'noopener noreferrer';
+
+                    const iconBox = document.createElement('div');
+                    iconBox.className = 'icon-box';
+                    // Vi applicerar inline styles för färgen dynamiskt
+                    iconBox.style.color = iconConfig.color;
+                    iconBox.style.backgroundColor = iconConfig.bg;
+                    iconBox.innerHTML = `<svg viewBox="0 0 24 24">${iconConfig.path}</svg>`;
+
+                    const title = document.createElement('h2');
+                    title.className = 'card-title';
+                    title.textContent = tool.name;
+
+                    const desc = document.createElement('p');
+                    desc.className = 'card-desc';
+                    desc.textContent = tool.desc;
+
+                    card.append(iconBox, title, desc);
+                    grid.append(card);
+                });
+            }
+
+            initPortal();
+        });
+    </script>
+</body>
+</html>

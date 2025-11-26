@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1",
+    "name": "HR Portal",
+    "desc": "Hantera personal, semester och utvecklingssamtal.",
+    "url": "https://hr.foretaget.se",
+    "iconType": "admin"
+  },
+  {
+    "id": "2",
+    "name": "Säljutveckling",
+    "desc": "KPI-rapporter och försäljningsprognoser i realtid.",
+    "url": "https://sales.foretaget.se",
+    "iconType": "analytics"
+  },
+  {
+    "id": "3",
+    "name": "Server Status",
+    "desc": "Övervakning av infrastruktur och driftstörningar.",
+    "url": "https://status.foretaget.se",
+    "iconType": "cloud"
+  },
+  {
+    "id": "4",
+    "name": "Dokumentarkiv",
+    "desc": "Alla avtal, policys och mallar samlade.",
+    "url": "https://docs.foretaget.se",
+    "iconType": "docs"
+  },
+  {
+    "id": "5",
+    "name": "IT Säkerhet",
+    "desc": "Rapportera incidenter och hantera åtkomst.",
+    "url": "https://security.foretaget.se",
+    "iconType": "security"
+  },
+  {
+    "id": "6",
+    "name": "Varumärke",
+    "desc": "Loggor, typsnitt och grafiska riktlinjer.",
+    "url": "https://brand.foretaget.se",
+    "iconType": "media"
+  }
+]
