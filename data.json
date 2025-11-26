@@ -1,10 +1,10 @@
 [
   {
     "id": "1",
-    "name": "HR Portal",
-    "desc": "Hantera personal, semester och utvecklingssamtal.",
-    "url": "https://hr.foretaget.se",
-    "iconType": "admin"
+    "name": "SOB - organisationer",
+    "desc": "Statistik och tabell med samtliga organisationer som anslutit via SOB.",
+    "url": "https://ombud-begr-stats.rob1sun9764.workers.dev",
+    "iconType": "analytics"
   },
   {
     "id": "2",
@@ -43,5 +43,6 @@
   }
 
 ]
+
 
 
