@@ -4,7 +4,7 @@
     "name": "Federatören Sören",
     "desc": "Sören är ny på jobbet och ärligt talat är han inte den skarpaste kniven i lådan. MCP finns för den som har en vassare kniv.",
     "url": "https://ai-agent-gui.pages.dev/",
-    "iconType": "analytics"
+    "iconType": "admin"
   },
   {
     "id": "sob_org",
@@ -106,6 +106,7 @@
   }
 
 ]
+
 
 
 
